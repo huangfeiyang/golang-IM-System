@@ -1,6 +1,9 @@
 package main
 
-import "net"
+import (
+	"fmt"
+	"net"
+)
 
 type User struct {
 	Name string
@@ -57,6 +60,7 @@ func (this *User) Offline() {
 func (this *User) Domessage(msg string) {
 	if msg == "who" {
 		for _, value := range this.server.OnlineMap {
+			fmt.Println(value.Name)
 			this.conn.Write([]byte(value.Name + "\n"))
 		}
 	}
