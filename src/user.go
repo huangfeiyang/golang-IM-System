@@ -55,5 +55,10 @@ func (this *User) Offline() {
 
 //用户接收消息功能
 func (this *User) Domessage(msg string) {
+	if msg == "who" {
+		for index, value := range this.server.OnlineMap {
+			this.conn.Write([]byte(value + "\n"))
+		}
+	}
 	this.server.BroadCast(this, msg)
 }
