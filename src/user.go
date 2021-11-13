@@ -70,7 +70,7 @@ func (this *User) Domessage(msg string) {
 			this.sendMsg(onlineMsg)
 		}
 		this.server.mapLock.Unlock()
-	} else if len(msg) > 7 && msg[:7] == "rename" {
+	} else if len(msg) > 7 && msg[:7] == "rename|" {
 		newName := strings.Split(msg, "|")[1]
 		_, ok := this.server.OnlineMap[newName]
 		if ok {
