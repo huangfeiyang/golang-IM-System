@@ -1,15 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"net"
 )
 
 type User struct {
-	Name string
-	Addr string
-	C    chan string
-	conn net.Conn
+	Name   string
+	Addr   string
+	C      chan string
+	conn   net.Conn
 	server *Server
 }
 
@@ -17,10 +16,10 @@ type User struct {
 func NewUser(conn net.Conn, server *Server) *User {
 	userAddr := conn.RemoteAddr().String()
 	user := &User{
-		Name: userAddr,
-		Addr: userAddr,
-		C: make(chan string),
-		conn: conn,
+		Name:   userAddr,
+		Addr:   userAddr,
+		C:      make(chan string),
+		conn:   conn,
 		server: server,
 	}
 
@@ -56,13 +55,20 @@ func (this *User) Offline() {
 	this.server.BroadCast(this, "已下线")
 }
 
+//给当前用户发送消息
+func (this *User) sendMsg(msg string) {
+	this.conn.Write([]byte(msg))
+}
+
 //用户接收消息功能
 func (this *User) Domessage(msg string) {
 	if msg == "who" {
+		this.server.mapLock.Lock()
 		for _, value := range this.server.OnlineMap {
-			fmt.Println(value.Name)
-			this.conn.Write([]byte(value.Name + "\n"))
+			onlineMsg := "[" + value.Addr + "]" + value.Name + ":" + "在线...\n"
+			this.sendMsg(onlineMsg)
 		}
+		this.server.mapLock.Unlock()
 	}
 	this.server.BroadCast(this, msg)
 }
