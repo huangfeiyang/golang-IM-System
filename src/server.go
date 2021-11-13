@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"sync"
-	"io"
+	"time"
 )
 
 type Server struct {
@@ -57,6 +58,9 @@ func (this *Server) Handler(conn net.Conn) {
 	//用户上线,map加入用户
 	user := NewUser(conn, this)
 	user.Online()
+	
+	//监听用户活跃状态
+	isLive := make(chan bool)
 
 	//接受客户端传递发送的消息
 	go func() {
@@ -77,11 +81,17 @@ func (this *Server) Handler(conn net.Conn) {
 			msg := string(buf[:n-1])
 
 			user.Domessage(msg)
+			isLive <- true
 		}
 	}()
 	//当前handler阻塞
-	select {
-		
+	for {
+		select {
+		case <-isLive:
+		case <-time.After(time.Second * 10):
+				user.SendMsg("登陆状态超时，已强制下线")
+				close(user.C)
+		}
 	}
 }
 

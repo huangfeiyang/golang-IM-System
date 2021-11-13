@@ -57,7 +57,7 @@ func (this *User) Offline() {
 }
 
 //给当前用户发送消息
-func (this *User) sendMsg(msg string) {
+func (this *User) SendMsg(msg string) {
 	this.conn.Write([]byte(msg))
 }
 
@@ -67,21 +67,21 @@ func (this *User) Domessage(msg string) {
 		this.server.mapLock.Lock()
 		for _, value := range this.server.OnlineMap {
 			onlineMsg := "[" + value.Addr + "]" + value.Name + ":" + "在线...\n"
-			this.sendMsg(onlineMsg)
+			this.SendMsg(onlineMsg)
 		}
 		this.server.mapLock.Unlock()
 	} else if len(msg) > 7 && msg[:7] == "rename|" {
 		newName := strings.Split(msg, "|")[1]
 		_, ok := this.server.OnlineMap[newName]
 		if ok {
-			this.sendMsg("当前用户名已被占用!")
+			this.SendMsg("当前用户名已被占用!")
 		} else {
 			this.server.mapLock.Lock()
 			delete(this.server.OnlineMap, this.Name)
 			this.server.OnlineMap[newName] = this
 			this.server.mapLock.Unlock()
 			this.Name = newName
-			this.sendMsg("您已经更新用户名：" + this.Name + "\n")
+			this.SendMsg("您已经更新用户名：" + this.Name + "\n")
 		}
 	} else {
 		this.server.BroadCast(this, msg)
