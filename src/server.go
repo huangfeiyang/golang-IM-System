@@ -88,7 +88,7 @@ func (this *Server) Handler(conn net.Conn) {
 	for {
 		select {
 		case <-isLive:
-		case <-time.After(time.Second * 10):
+		case <-time.After(time.Second * 3600):
 				user.SendMsg("登陆状态超时，已强制下线")
 				close(user.C)
 				conn.Close()
