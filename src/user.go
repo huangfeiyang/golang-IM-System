@@ -83,6 +83,21 @@ func (this *User) Domessage(msg string) {
 			this.Name = newName
 			this.SendMsg("您已经更新用户名：" + this.Name + "\n")
 		}
+	} else if len(msg) > 4 && msg[:3] == "to|" {
+		remoteName := strings.Split(msg, "|")[1]
+		if remoteName == "" {
+			this.SendMsg("请用正确的格式私聊，例如：\"to|张三|你好\" \n")
+			return
+		} else {
+			remoteUser, ok := this.server.OnlineMap[remoteName]
+			if !ok {
+				this.SendMsg("该用户不在线! \n")
+				return
+			} else {
+				content := strings.Split(msg, "|")[2]
+				remoteUser.SendMsg(this.Name + ":" + content + "\n")
+			}
+		}
 	} else {
 		this.server.BroadCast(this, msg)
 	}
