@@ -91,6 +91,7 @@ func (this *Server) Handler(conn net.Conn) {
 		case <-time.After(time.Second * 10):
 				user.SendMsg("登陆状态超时，已强制下线")
 				close(user.C)
+				conn.Close()
 				return
 		}
 	}
