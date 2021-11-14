@@ -54,7 +54,7 @@ func (client *Client) menu() bool {
 	}
 }
 
-func (client * Client) UpdateName() bool {
+func (client *Client) UpdateName() bool {
 	fmt.Println("请输入用户名:")
 	fmt.Scanln(&client.Name)
 	sendMsg := "rename|" + client.Name + "\n"
@@ -88,6 +88,48 @@ func (client *Client) PublicChat() {
 	}
 }
 
+func (client *Client) SelectOnlieUser() {
+	sendMsg := "who\n"
+	_, err := client.conn.Write([]byte(sendMsg))
+	if err != nil {
+		fmt.Println("conn.Write err:", err)
+		return
+	}
+}
+
+func (client *Client) PrivateChat() {
+	var remoteName string
+	var chatMsg string
+
+	client.SelectOnlieUser()
+	fmt.Println(">>>>>请输入聊天对象[用户名],exit退出:")
+	fmt.Scanln(&remoteName)
+
+	for remoteName != "exit" {
+		fmt.Println(">>>>>请输入消息内容，exit退出:")
+		fmt.Scanln(&chatMsg)
+
+		for chatMsg != "exit" {
+			if len(chatMsg) != 0 {
+				sendMsg := "to|" + remoteName + "|" + chatMsg + "\n"
+				_, err := client.conn.Write([]byte(sendMsg))
+				if err != nil {
+					fmt.Println("conn.Write err:", err)
+					break
+				}
+			}
+
+			chatMsg = ""
+			fmt.Println(">>>>>请输入消息内容，exit退出:")
+			fmt.Scanln(&chatMsg)
+		}
+
+		client.SelectOnlieUser()
+		fmt.Println(">>>>>请输入聊天对象[用户名],exit退出:")
+		fmt.Scanln(&remoteName)
+	}
+}
+
 func (client *Client) DealResponse() {
 	io.Copy(os.Stdout, client.conn)
 	//以上等价于以下
@@ -105,10 +147,11 @@ func (client *Client) Run() {
 		switch client.flag {
 		case 1:
 			fmt.Println("您已进入公聊模式!")
+			client.PublicChat()
 			break
 		case 2:
 			fmt.Println("您已进入私聊模式")
-			client.PublicChat()
+			client.PrivateChat()
 			break
 		case 3:
 			client.UpdateName()
