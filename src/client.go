@@ -137,6 +137,6 @@ func main() {
 		go client.DealResponse()
 
 		fmt.Println(">>>>>>>> 连接服务器成功!")
-		select {}
+		client.Run()
 	}
 }
